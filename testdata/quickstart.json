@@ -1,16 +1,17 @@
 {
-  "command": "all",
-  "drop": true,
-  "source": "mongodb://user:password@localhost/?compressors=zstd&readPreference=secondaryPreferred",
-  "target": "mongodb://user:password@localhost:37017/?compressors=zstd&readPreference=secondaryPreferred",
+  "command": "data",
+  "block": 10000,
+  "drop": false,
+  "source": "mongodb://intsights-frontend-us-database-shard-1:27017",
+  "target": "mongodb+srv://frontend_database:KdDaFWhF1uTYr2H8@frontend-database-shard-pri.6e3zh.mongodb.net",
   "includes": [
-    { "namespace": "Documents.*"},
-    { "namespace": "testdb.*"},
-    { "namespace": "keyhole.numbers", "to": "testdb.counts"},
-    { "namespace": "template.favorites", "filter": {"ts": {"$gt":{"$date": "2021-09-23T10:20:00.266Z"}}}, "limit": 1024 },
-    { "namespace": "keyhole.vehicles", "filter": { "color": { "$in": [ "Black", "White" ] }}, "limit": 1024 }
+    {
+      "namespace": "frontend_database.account_alerts_snapshot",
+      "to": "frontend_database.account_alerts_snapshot"
+    }
   ],
-  "verbose": false,
+  "verbose": true,
   "yes": true,
+  "workers": 12,
   "license": "Apache-2.0"
 }

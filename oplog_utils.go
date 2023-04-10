@@ -236,43 +236,50 @@ func GetWriteModels(oplog Oplog) []OplogWriteModel {
 		return wmodels
 	case "d":
 		op := mongo.NewDeleteOneModel()
-		op.SetFilter(oplog.Object)
+		newOpLogObject := handleZoneFieldFromOplog(oplog.Object)
+		op.SetFilter(newOpLogObject)
 		return []OplogWriteModel{OplogWriteModel{ns, oplog.Operation, op}}
 	case "i":
 		op := mongo.NewInsertOneModel()
-		op.SetDocument(oplog.Object)
+		newOpLogObject := handleZoneFieldFromOplog(oplog.Object)
+		op.SetDocument(newOpLogObject)
 		return []OplogWriteModel{OplogWriteModel{ns, oplog.Operation, op}}
 	case "n":
 		return nil
 	case "u":
 		o := oplog.Object
+		newOpLogObject := handleZoneFieldFromOplog(o)
+
 		for _, v := range oplog.Object {
 			if v.Key == "diff" {
 				for _, doc := range v.Value.(bson.D) {
 					if doc.Key == "u" || doc.Key == "i" {
 						op := mongo.NewUpdateOneModel()
-						op.SetFilter(oplog.Query)
+						newOpLogQuery := handleZoneFieldFromOplog(oplog.Query)
+						op.SetFilter(newOpLogQuery)
 						op.SetUpdate(bson.D{{"$set", doc.Value}})
 						return []OplogWriteModel{{ns, oplog.Operation, op}}
 					} else if doc.Key == "d" {
 						op := mongo.NewUpdateOneModel()
-						op.SetFilter(oplog.Query)
+						newOpLogQuery := handleZoneFieldFromOplog(oplog.Query)
+						op.SetFilter(newOpLogQuery)
 						op.SetUpdate(bson.D{{"$unset", doc.Value}})
 						return []OplogWriteModel{{ns, oplog.Operation, op}}
 					}
 				}
 				return []OplogWriteModel{}
 			} else if v.Key != "$v" && strings.HasPrefix(v.Key, "$") {
-				o = bson.D{{v.Key, v.Value}}
+				newOpLogObject = bson.D{{v.Key, v.Value}}
 				op := mongo.NewUpdateOneModel()
 				op.SetFilter(oplog.Query)
-				op.SetUpdate(o)
+				op.SetUpdate(newOpLogObject)
 				return []OplogWriteModel{{ns, oplog.Operation, op}}
 			}
 		}
 		op := mongo.NewReplaceOneModel()
-		op.SetFilter(oplog.Query)
-		op.SetReplacement(o)
+		newOpLogQuery := handleZoneFieldFromOplog(oplog.Query)
+		op.SetFilter(newOpLogQuery)
+		op.SetReplacement(newOpLogObject)
 		return []OplogWriteModel{{ns, oplog.Operation, op}}
 	default:
 		log.Println("unrecognized op", oplog.Operation)

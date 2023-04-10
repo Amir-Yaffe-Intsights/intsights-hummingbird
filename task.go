@@ -70,8 +70,20 @@ func (p *Task) CopyData(source *mongo.Collection, target *mongo.Collection) erro
 			docs = []interface{}{}
 		}
 		doc := make(bson.Raw, len(cursor.Current))
+
 		copy(doc, cursor.Current)
-		docs = append(docs, doc)
+
+		var ParsedDoc bson.M
+
+		bson.Unmarshal(doc, &ParsedDoc)
+
+		DocWithLocation := handleZoneField(
+			ParsedDoc,
+		)
+
+		newDoc, _ := bson.Marshal(DocWithLocation)
+
+		docs = append(docs, newDoc)
 		size += len(cursor.Current)
 	}
 	if len(docs) > 0 {
