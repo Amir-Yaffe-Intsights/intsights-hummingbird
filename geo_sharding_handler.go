@@ -39,7 +39,7 @@ func handleZoneField(
 			switch ZoneStr {
 			case "EU":
 				ZoneStr = "ES"
-			case "asia":
+			case "ASIA":
 				ZoneStr = "JP"
 			default:
 			}
