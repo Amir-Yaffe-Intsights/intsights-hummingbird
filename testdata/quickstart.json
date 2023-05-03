@@ -1,16 +1,17 @@
 {
-  "command": "all",
-  "drop": true,
-  "source": "mongodb://user:password@localhost/?compressors=zstd&readPreference=secondaryPreferred",
-  "target": "mongodb://user:password@localhost:37017/?compressors=zstd&readPreference=secondaryPreferred",
+  "command": "data",
+  "block": 10000,
+  "drop": false,
+  "source": "source_cluster:27017",
+  "target": "mongodb+srv://{username}:{password}@{server_name}.mongodb.net",
   "includes": [
-    { "namespace": "Documents.*"},
-    { "namespace": "testdb.*"},
-    { "namespace": "keyhole.numbers", "to": "testdb.counts"},
-    { "namespace": "template.favorites", "filter": {"ts": {"$gt":{"$date": "2021-09-23T10:20:00.266Z"}}}, "limit": 1024 },
-    { "namespace": "keyhole.vehicles", "filter": { "color": { "$in": [ "Black", "White" ] }}, "limit": 1024 }
+    {
+      "namespace": "{database_name}.{collection_name}",
+      "to": "{database_name}.{collection_name}"
+    }
   ],
-  "verbose": false,
+  "verbose": true,
   "yes": true,
+  "workers": 12,
   "license": "Apache-2.0"
 }

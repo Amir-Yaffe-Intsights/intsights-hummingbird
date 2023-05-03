@@ -127,7 +127,7 @@ func (ws *Workspace) Log(status string) error {
 	if err != nil {
 		return fmt.Errorf("GetMongoClient failed: %v", err)
 	}
-	doc := bson.M{"_id": time.Now(), "status": status}
+	doc := bson.M{"_id": primitive.NewObjectID(), "status": status}
 	_, err = client.Database(MetaDBName).Collection(MetaLogs).InsertOne(context.Background(), doc)
 	return err
 }
@@ -223,7 +223,7 @@ func (ws *Workspace) CountAllStatus() (TaskStatusCounts, error) {
 			"$sort": { "status": 1 }
 		}, {
 			"$group": {
-				"_id": "$status", 
+				"_id": "$status",
 				"count": { "$sum": 1 }
 			}
 		}
